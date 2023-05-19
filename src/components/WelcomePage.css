@@ -1,0 +1,27 @@
+@media screen and (max-width: 768px) {
+    .container {
+        width: 80%;
+    }
+}
+
+@media screen and (min-width: 769px) {
+    .container {
+        width: 30%;
+    }
+}
+
+.text-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    text-align: center;
+    background-color: rgba(0, 0, 0, 0);
+    box-shadow: none;
+}
+
+html {
+    background-color: #F6F6F6;
+    font-family: Arial, sans-serif;
+}
