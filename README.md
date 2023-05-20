@@ -10,6 +10,8 @@ git clone https://github.com/SGCGS/vue-dev.git
 ```
 npm install vue@next
 npm install -g @vue/cli
+npm install vue-recaptcha-v3
+npm install js-cookie@latest
 ```
 
 ### Debug & Realtime Preview

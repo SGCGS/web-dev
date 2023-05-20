@@ -1,5 +1,5 @@
 <script>
-import ColorBackground from './ColorBackgroundGradient.vue';
+import ColorBackground from './ColorBackgroundG1.vue';
 import "./WelcomePage.css";
 
 export default {
@@ -11,9 +11,11 @@ export default {
 </script>
 
 <template>
-    <div class="text-container">
-        <h2><span style="color: #0072FF;">sgcgs</span><span style="color: gray;">.</span><span
-                style="color: #0072FF;">com</span></h2>
+    <div class="container">
+        <h2 class="welcoming-text">
+            Welcome to <span style="color: #0072FF;">SGCGS</span><span style="color: gray;">.</span><span
+                style="color: #0072FF;">COM</span>
+        </h2>
     </div>
     <ColorBackground />
 </template>

@@ -1,150 +1,92 @@
 <template>
     <div class="container">
         <h2>Login with <span style="color: #0072FF;">ManageBac</span></h2>
-        <form :model="loginForm">
+        <form @submit="handleSubmit" ref="loginForm">
             <label style="font-weight: bold;">Username</label>
-            <input class="form-input" v-model="loginForm.username">
+            <input class="form-input" name="username" v-model="username">
             <label style="font-weight: bold;">Password</label>
-            <input class="form-input" v-model="loginForm.password" type="password">
-            <vue-recaptcha @verify="onCaptchaVerify" :sitekey="siteKey" theme="light"></vue-recaptcha>
+            <input class="form-input" type="password" name="password" v-model="password">
             <button type="submit" class="form-button">Login</button>
         </form>
     </div>
-    <ColorBackground />
+    <ColorBackground :background="background" />
 </template>
 
 <script>
-// import VueRecaptcha from 'vue-recaptcha';
 import "./LoginPage.css";
-import ColorBackground from './ColorBackgroundGradient.vue';
+import ColorBackground from './ColorBackgroundG2.vue';
+import { useReCaptcha } from 'vue-recaptcha-v3';
+import Cookies from 'js-cookie';
+import { useRouter } from 'vue-router';
 
 export default {
+    setup() {
+        const router = useRouter();
+        function validateAuthorization() {
+            return Cookies.get("token");
+        }
+        if (validateAuthorization()) {
+            router.push("/");
+        }
+        const { executeRecaptcha, recaptchaLoaded } = useReCaptcha()
+        const recaptcha = async () => {
+            await recaptchaLoaded()
+            const token = await executeRecaptcha('login')
+            console.log({ token })
+            return token;
+        }
+        return {
+            recaptcha
+        }
+    },
     name: 'LoginPage',
     components: {
-        // VueRecaptcha,
         ColorBackground
     },
     data() {
         return {
-            loginForm: {
-                username: '',
-                password: '',
-                managebactoken: '',
-                rt: '',
-            },
-            siteKey: '',
-            showRegisterButton: true,
+            username: '',
+            password: '',
+            rt: '',
+            background: 'linear-gradient(to right, #68dba4, #167dff)',
         };
     },
-    mounted() {
-        fetch('api.scgcs.atunemic.com/rsk')
-            .then(response => response.text())
-            .then(siteKey => {
-                this.siteKey = siteKey;
-            })
-            .catch(error => {
-                console.error(error);
-                alert('Failed to retrieve ReCaptcha site key.');
-            });
-    },
     methods: {
-        onCaptchaVerify(response) { // TODO BUG: captcha doesn't work for some reason
-            this.loginForm.rt = response;
-        },
-        async login() {
-            try {
-                const managebacToken = await this.getManagebacToken();
-                this.loginForm.managebactoken = managebacToken;
-                const response = await this.sendLoginRequest();
-                if (response.ok) {
-                    const cookieHeader = response.headers.get('Set-Cookie');
-                    document.cookie = cookieHeader;
-                    // redirect_homepage();
-                } else {
-                    const json = await response.json();
-                    alert(json.detail); // show failure message
-                }
-            } catch (error) {
-                console.error(error);
-                alert('An error occurred. Please try again.'); // show error message
-            }
-        },
-        async register() {
-            try {
-                const managebacToken = await this.getManagebacToken();
-                this.loginForm.managebactoken = managebacToken;
-                const response = await this.sendRegisterRequest();
-                if (response.ok) {
-                    const cookieHeader = response.headers.get('Set-Cookie');  // Not sure about cookie: verify with Kita-san
-                    document.cookie = cookieHeader;
-                    // redirect_homepage();
-                } else {
-                    const json = await response.json();
-                    alert(json.detail);
-                }
-            } catch (error) {
-                console.error(error);
-                alert('An error occurred. Please try again.');
-            }
-        },
-        async getManagebacToken() {
-            const url = 'https://api.scgcs.atunemic.com/managebac';
-            const params = {
-                username: this.loginForm.username,
-                password: this.loginForm.password,
-                rt: this.loginForm.rt,
+        async handleSubmit(event) {
+            event.preventDefault();
+            this.rt = await this.recaptcha();
+
+            const payload = {
+                username: this.username,
+                password: this.password,
+                rt: this.rt
             };
-            const query = Object.keys(params)
-                .map((key) => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`)
-                .join('&');
-            const response = await fetch(`${url}?${query}`);
+
+            const response = await fetch(`${this.$apiBaseUrl}/login/managebac`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
             if (response.ok) {
-                const token = await response.text();
-                return token;
-            } else {
-                const json = await response.json();
-                throw new Error(json.detail);
+                const cookie = response.json()["token"];
+                var now = new Date();
+                var future = new Date(now.getTime() + this.$expireInterval * 60000);
+                Cookies.set('token', cookie, { expires: future });
+                const urlParams = new URLSearchParams(window.location.search);
+                const redirectParam = urlParams.get('redirect');
+                if (redirectParam) {
+                    this.$router.push(redirectParam);
+                } else {
+                    this.$router.push('/');
+                }
+            } else if (response.status === 401) {
+                const errorJson = await response.json();
+                alert(errorJson["detail"]);
             }
         },
-        async sendLoginRequest() {
-            const url = 'https://api.scgcs.atunemic.com/login';
-            const params = {
-                managebactoken: this.loginForm.managebactoken,
-            };  // TODO verify API format with Kita-san
-            const query = Object.keys(params)
-                .map((key) => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`)
-                .join('&');
-            const options = {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: query,
-            };
-            const response = await fetch(url, options);
-            return response;
-        },
-        async sendRegisterRequest() {
-            const url = 'https://api.scgcs.atunemic.com/register';
-            const params = {
-                managebactoken: this.loginForm.managebactoken,
-            };
-            const query = Object.keys(params)
-                .map((key) => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`)
-                .join('&');
-            const options = {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: query,
-            };
-            const response = await fetch(url, options);
-            return response;
-        },
-        async redirect_homepage() {
-            // TODO
-        }
-    },
+    }
 };
 </script>

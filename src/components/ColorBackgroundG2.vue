@@ -3,24 +3,43 @@
 </template>
 <script>
 export default {
+  props: {
+    background: {
+      type: String,
+      default: "linear-gradient(to right, #68dba4, #167dff)"
+    },
+    phase: {
+      type: Number,
+      default: 2
+    }
+  },
+  computed: {
+    computedPhase: function () {
+      return function () {
+        switch (this.phase % 4 + 1) {
+          case 1:
+            return [0, 1, 0, 0];
+          case 2:
+            return [0, 1, 0, 1];
+          case 3:
+            return [1, 0, 1, 0];
+          case 4:
+            return [1, 0, 1, 1];
+        }
+      };
+    },
+  },
   mounted() {
+    document.documentElement.style.background = this.background;
     this.generateColorBlocks();
     window.addEventListener("resize", this.generateColorBlocks);
   },
   methods: {
-    lightenColor(color) {
-      const ratio = 0.3;
-      const [r, g, b] = color.match(/\w\w/g).map(c => parseInt(c, 16));
-      const newR = Math.floor(r + (255 - r) * ratio);
-      const newG = Math.floor(g + (255 - g) * ratio);
-      const newB = Math.floor(b + (255 - b) * ratio);
-      return `#${((1 << 24) + (newR << 16) + (newG << 8) + newB).toString(16).slice(1)}`;
-    },
     generateRandomColor() {
-      const colors = ["#0461CF", "#FFFFFF"];
+      const colors = ["rgba(102, 204, 255, 0)", "rgba(255, 255, 255, 1)"];
       const shuffledColors = this.shuffleArray(colors);
       const randomColor = shuffledColors[0];
-      return this.lightenColor(randomColor);
+      return randomColor;
     },
     shuffleArray(array) {
       let currentIndex = array.length;
@@ -42,18 +61,18 @@ export default {
       const containerWidth = container.offsetWidth;
       const containerHeight = container.offsetHeight;
       const blockSize = 10;
-      const width = Math.ceil(containerWidth / blockSize);
-      const height = Math.ceil(containerHeight / blockSize);
+      const width = Math.ceil(containerWidth / blockSize) + 1;
+      const height = Math.ceil(containerHeight / blockSize) + 1;
 
       for (let i = 0; i < height; i++) {
         const row = document.createElement("div");
         row.classList.add("color-row");
         const denseBlocks = i % 2 === 0;
-        const consecutiveColors = Math.floor(Math.random() * 10) + 5;
+        const consecutiveColors = Math.floor(Math.random() * 5) + 10;
         let currentColor = this.generateRandomColor();
 
         if (!denseBlocks) {
-          currentColor = "#FFFFFF";
+          currentColor = "rgba(255, 255, 255, 1)";
         }
 
         const createColorBlock = (width, color) => {
@@ -83,7 +102,11 @@ export default {
 
         colorRowBlocks.forEach((block) => {
           const colorBlock = createColorBlock(block.width, block.color);
-          colorBlock.style.backgroundColor = block.color;
+          if (block.color === "rgba(102, 204, 255, 0)") {
+            colorBlock.style.background = `linear-gradient(to right, rgba(255, 255, 255, ${this.computedPhase()[0]}), rgba(255, 255, 255, ${this.computedPhase()[1]}), rgba(255, 255, 255, ${this.computedPhase()[2]}))`;
+          } else {
+            colorBlock.style.backgroundColor = `rgba(255, 255, 255, ${this.computedPhase()[3]})`;
+          }
           row.appendChild(colorBlock);
         });
 
