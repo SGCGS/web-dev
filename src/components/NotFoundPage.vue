@@ -1,5 +1,5 @@
 <script>
-import ColorBackground from './ColorBackgroundG1.vue';
+import ColorBackground from './ColorBackgroundG2.vue';
 import "./NotFoundPage.css";
 
 export default {
