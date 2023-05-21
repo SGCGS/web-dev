@@ -1,17 +1,17 @@
-# Front-End Vue Repository Of SGCGS Project
-A Vue.js 3 website.
+# Front-End Repository Of SGCGS Project
 
 ## Install Development Environment
 Install Node.js and Git before you start.  
 At working directory:
 ```
-git clone https://github.com/SGCGS/vue-dev.git
+git clone https://github.com/SGCGS/web-dev.git
 ```
 ```
 npm install vue@next
 npm install -g @vue/cli
 npm install vue-recaptcha-v3
 npm install js-cookie@latest
+npm install vue-router@4
 ```
 
 ### Debug & Realtime Preview
