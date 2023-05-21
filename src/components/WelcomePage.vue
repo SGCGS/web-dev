@@ -13,8 +13,7 @@ export default {
 <template>
     <div class="container">
         <h2 class="welcoming-text">
-            Welcome to <span style="color: #0072FF;">SGCGS</span><span style="color: gray;">.</span><span
-                style="color: #0072FF;">COM</span>
+            COMING SOON...
         </h2>
     </div>
     <ColorBackground />

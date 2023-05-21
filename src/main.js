@@ -10,9 +10,8 @@ import Cookies from 'js-cookie';
 const app = createApp(App);
 
 
-app.config.globalProperties.$apiBaseUrl = "https://api.sgcgs.com"; // production
-app.config.globalProperties.$apiBaseUrl = "http://localhost:8000"; // development
-app.config.globalProperties.$expireInterval = 15; // minute(s)
+app.config.globalProperties.$apiBaseUrl = process.env.VUE_APP_API_BASE_URL;
+app.config.globalProperties.$expireInterval = process.env.VUE_APP_COOKIE_EXPIRE_INTERVAL; // minute(s)
 
 
 const router = createRouter({
@@ -47,7 +46,7 @@ router.beforeEach((to, from, next) => {
 
 app.use(router);
 app.use(VueReCaptcha, {
-    siteKey: '6LcVBiQmAAAAAHRd3e-vO9_mWW9-xN74Omq0hmC_',
+    siteKey: process.env.VUE_APP_RECAPTCHA_SITE_KEY,
     loaderOptions: {
         useRecaptchaNet: true
     }

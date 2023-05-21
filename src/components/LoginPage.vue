@@ -23,21 +23,10 @@ import "./LoginPage.css";
 import ColorBackground from './ColorBackgroundG2.vue';
 import { useReCaptcha } from 'vue-recaptcha-v3';
 import Cookies from 'js-cookie';
-import { useRouter } from 'vue-router';
 import { ref } from 'vue';
 
 export default {
     setup() {
-        const router = useRouter();
-
-        function validateAuthorization() {
-            return Cookies.get("token");
-        }
-
-        if (validateAuthorization()) {
-            router.push("/");
-        }
-
         const { executeRecaptcha, recaptchaLoaded } = useReCaptcha();
         const recaptcha = async () => {
             await recaptchaLoaded();
@@ -75,6 +64,15 @@ export default {
             remainingSeconds,
             startCountdown
         };
+    },
+    mounted() {
+        function validateAuthorization() {
+            return Cookies.get("token");
+        }
+
+        if (validateAuthorization()) {
+            this.$router.push("/");
+        }
     },
     name: 'LoginPage',
     components: {
