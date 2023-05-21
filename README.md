@@ -21,7 +21,13 @@ npm run serve
 ```
 Start the browsers to debug or use configured debug feature of Visual Studio Code (at debug tab).
 
-### Compiles and minifies for production
+### Deployment
 ```
 npm run build
+```
+Nginx Configuration
+```
+location / {
+    try_files $uri $uri/ /index.html;
+}
 ```
