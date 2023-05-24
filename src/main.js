@@ -1,9 +1,11 @@
 import { createApp } from 'vue';
 import { createRouter, createWebHistory } from 'vue-router';
 import App from './App.vue';
+
 import LoginPage from './components/LoginPage.vue';
 import WelcomePage from './components/WelcomePage.vue';
 import NotFoundPage from './components/NotFoundPage.vue';
+
 import { VueReCaptcha } from 'vue-recaptcha-v3'
 import Cookies from 'js-cookie';
 
@@ -29,6 +31,7 @@ const router = createRouter({
         {
             path: '/:catchAll(.*)',
             component: NotFoundPage,
+            meta: { requiresAuth: true }
         },
     ],
 });
@@ -38,7 +41,11 @@ router.beforeEach((to, from, next) => {
     const requiresAuth = to.meta.requiresAuth;
 
     if (requiresAuth && !authorized) {
-        next('/login');
+        if (to.fullPath != "/") {
+            next(`/login?redirect=${encodeURIComponent(to.fullPath)}`);
+        } else {
+            next(`/login`);
+        }
     } else {
         next();
     }

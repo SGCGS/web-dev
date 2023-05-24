@@ -31,8 +31,9 @@ export default {
 
 <template>
     <div class="container">
-        <h2 class="welcoming-text"><span style="color: #FF3333;">Not Found 404</span></h2>
-        Return to homepage in {{ countdown }}
+        <h2 class="error-text">
+            Not Found 404<br />Return to homepage in {{ countdown }}
+        </h2>
     </div>
     <ColorBackground :background="background" />
 </template>

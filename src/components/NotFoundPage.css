@@ -24,3 +24,7 @@
 html {
     font-family: Arial, sans-serif;
 }
+
+.error-text {
+    color: #FF3333;
+}
